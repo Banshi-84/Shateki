@@ -1,14 +1,12 @@
 const db = require("../config/database");
 
-// Simulates shooting a prize and returns a score
 const shootPrize = async (req, res) => {
   const { playerId, username } = req.body;
   
   if (!playerId || !username) {
-    return res.status(400).json({ error: "Player ID and username are required." });
+    return res.status(400).json({ error: "Player ID and username are required to proceed." });
   }
 
-  // Simulate scoring (random value between 10-50)
   const score = Math.floor(Math.random() * 41) + 10;
 
   const playerRef = db.ref("players/" + playerId);
@@ -24,7 +22,6 @@ const shootPrize = async (req, res) => {
   return res.json({ message: "Shot registered!", playerId, username, score });
 };
 
-// Get top players for the leaderboard
 const getLeaderboard = async (req, res) => {
   const leaderboardRef = db.ref("players").orderByChild("score").limitToLast(10);
   const snapshot = await leaderboardRef.get();
@@ -38,7 +35,7 @@ const getLeaderboard = async (req, res) => {
     leaderboard.push({ playerId: childSnapshot.key, ...childSnapshot.val() });
   });
 
-  leaderboard.sort((a, b) => b.score - a.score); // Sort in descending order
+  leaderboard.sort((a, b) => b.score - a.score); 
 
   return res.json({ leaderboard });
 };
