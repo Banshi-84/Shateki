@@ -1,57 +1,77 @@
 import { Prize } from "./Prize";
 import { Player } from "./Player";
+import { Bullet } from "./Bullet";
 
 // 🎮 Game class manages the game state
 export class Game {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private prizes: Prize[] = [];
+  private bullets: Bullet[] = []; // 弾のリスト
   private player: Player;
   private background: HTMLImageElement;
+
+  private prizePositions: { x: number; y: number }[] = [
+    { x: 150, y: 200 }, { x: 200, y: 200 }, { x: 250, y: 200 }, { x: 400, y: 200 },
+    { x: 450, y: 200 }, { x: 500, y: 200 }, { x: 550, y: 200 },
+    { x: 150, y: 300 }, { x: 200, y: 300 }, { x: 250, y: 300 }, { x: 400, y: 300 },
+    { x: 450, y: 300 }, { x: 500, y: 300 }, { x: 550, y: 300 },
+    { x: 150, y: 400 }, { x: 200, y: 400 }, { x: 250, y: 400 }, { x: 400, y: 400 },
+    { x: 450, y: 400 }, { x: 500, y: 400 }, { x: 550, y: 400 }
+  ];
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-    this.player = new Player(canvas, this);
+    this.player = new Player(this);
 
-    // 🎨 Load background image
     this.background = new Image();
     this.background.src = "/assets/background.jpg";
     this.background.onload = () => {
-      console.log("✅ Background image loaded successfully!");
+      console.log("✅ 背景画像ロード完了！");
     };
 
-    this.createPrizes(); // 🎯 Initialize targets
+    this.createPrizes();
+  }
+
+  public getCanvas(): HTMLCanvasElement {
+    return this.canvas;
   }
 
   private createPrizes() {
-    const cols = 7;
-    const rows = 3;
-    const startX = 50;
-    const startY = 100;
-    const spacingX = 100;
-    const spacingY = 100;
+    this.prizes = [];
+    this.prizePositions.forEach(pos => {
+      this.prizes.push(new Prize(pos.x, pos.y));
+    });
+  }
 
-    this.prizes = []; // Reset previous prizes
+  public addBullet(bullet: Bullet) {
+    this.bullets.push(bullet);
+  }
 
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        const x = startX + col * spacingX;
-        const y = startY + row * spacingY;
-        this.prizes.push(new Prize(x, y));
-      }
-    }
+  private drawBullets() {
+    this.bullets.forEach(bullet => bullet.draw());
+  }
+
+  private drawGuideBullet() {
+    this.ctx.fillStyle = "blue";
+    this.ctx.beginPath();
+    this.ctx.arc(this.canvas.width / 2, this.canvas.height - 50, 5, 0, Math.PI * 2);
+    this.ctx.fill();
   }
 
   public update() {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // Clear canvas
-    this.ctx.drawImage(this.background, 0, 0, this.canvas.width, this.canvas.height); // Draw background
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.drawImage(this.background, 0, 0, this.canvas.width, this.canvas.height);
 
-    this.prizes.forEach((prize) => {
-      prize.draw(this.ctx);
-    });
+    this.prizes.forEach(prize => prize.draw(this.ctx));
 
-    this.player.update(); // Update player (including bullets)
+    this.bullets.forEach(bullet => bullet.update());
+    this.bullets = this.bullets.filter(bullet => bullet.isAlive());
+    this.drawBullets(); // 🔥 弾を描画する処理を追加
+
+    this.player.update();
+    this.drawGuideBullet();
   }
 
   public checkPrizeHit(bulletX: number, bulletY: number): number {
