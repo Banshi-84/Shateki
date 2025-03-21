@@ -11,9 +11,10 @@ const GameScreen: React.FC = () => {
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
+    let gameTimeout: NodeJS.Timeout;
 
     if (canvasRef.current && !game) {
-      const newGame = new Game(canvasRef.current);
+      const newGame = new Game(canvasRef.current, handleGameEnd);
       setGame(newGame);
 
       // 🎮 ゲームループ
@@ -28,29 +29,58 @@ const GameScreen: React.FC = () => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
             clearInterval(timer);
-
-            newGame.endGame(); // ✅ ゲームを強制終了
-
-            const score = newGame.getScore(); // ✅ スコア取得
-            saveScore(score); // ✅ スコア保存
-
-            // 記録画面へ遷移し、スコアを渡す
-            navigate("/record", { state: { score } }); // ✅ 自動遷移
+            return 0;
           }
           return prev - 1;
         });
       }, 1000);
+
+      // ⏳ 60秒後にゲームを強制終了
+      gameTimeout = setTimeout(() => {
+        newGame.endGame();
+      }, 60000);
     }
 
-    return () => clearInterval(timer); // クリーンアップ
-  }, [game, navigate]);
+    return () => {
+      clearInterval(timer);
+      clearTimeout(gameTimeout);
+    }; // クリーンアップ
+  }, [game]);
 
-  // 💾 スコアを localStorage に保存
+  // ✅ ゲーム終了時の処理
+  const handleGameEnd = (score: number) => {
+    saveScore(score); // 自分のスコアを保存
+    updateGlobalRanking(score); // 世界ランキング更新
+    navigate("/record", { state: { score } }); // 記録画面へ遷移
+  };
+
+  // 💾 自分のスコアを保存 (直近20件)
   const saveScore = (score: number) => {
-    const scores = JSON.parse(localStorage.getItem("myScores") || "[]");
+    let scores = JSON.parse(localStorage.getItem("myScores") || "[]");
+
+    if (!Array.isArray(scores)) {
+      scores = [];
+    }
+
     scores.unshift(score);
-    const trimmed = scores.slice(0, 20); // 直近20件まで
-    localStorage.setItem("myScores", JSON.stringify(trimmed));
+    scores = scores.slice(0, 20); // 直近20件のみ保持
+
+    localStorage.setItem("myScores", JSON.stringify(scores));
+  };
+
+  // 🌍 世界ランキングを更新 (トップ20)
+  const updateGlobalRanking = (score: number) => {
+    let globalScores = JSON.parse(localStorage.getItem("globalScores") || "[]");
+
+    if (!Array.isArray(globalScores)) {
+      globalScores = [];
+    }
+
+    globalScores.push(score);
+    globalScores.sort((a: number, b: number) => b - a); // 高得点順にソート
+    globalScores = globalScores.slice(0, 20); // トップ20のみ保持
+
+    localStorage.setItem("globalScores", JSON.stringify(globalScores)); // 保存
   };
 
   return (
