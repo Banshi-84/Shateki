@@ -4,7 +4,7 @@ import { Game } from "./Game";
 export class Bullet {
   private x: number;
   private y: number;
-  private speed: number = 5;
+  private speed: number = 10;
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private directionX: number;
