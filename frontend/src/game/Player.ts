@@ -1,41 +1,33 @@
-import { Bullet } from "./Bullet";
 import { Game } from "./Game";
+import { Bullet } from "./Bullet"; // Bullet を追加
 
-// 🎯 Player class manages aiming and shooting
 export class Player {
-  private canvas: HTMLCanvasElement;
-  private ctx: CanvasRenderingContext2D;
-  private bullets: Bullet[] = [];
   private game: Game;
   private x: number;
   private y: number;
 
-  constructor(canvas: HTMLCanvasElement, game: Game) {
-    this.canvas = canvas;
-    this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
+  constructor(game: Game) {
     this.game = game;
-    this.x = canvas.width / 2;
-    this.y = canvas.height - 50;
+    this.x = game.getCanvas().width / 2;
+    this.y = game.getCanvas().height - 50;
 
-    canvas.addEventListener("click", this.shoot.bind(this));
+    game.getCanvas().addEventListener("click", this.shoot.bind(this));
   }
 
   private shoot(event: MouseEvent) {
-    const rect = this.canvas.getBoundingClientRect();
-    const targetX = event.clientX - rect.left;
-    const targetY = event.clientY - rect.top;
+    const canvas = this.game.getCanvas();
+    const rect = canvas.getBoundingClientRect();
+    const shotX = event.clientX - rect.left;
+    const shotY = event.clientY - rect.top;
 
-    console.log(`🎯 Shot fired at (${targetX}, ${targetY})`);
-    this.bullets.push(new Bullet(this.canvas, this.x, this.y, targetX, targetY));
+    console.log("🔫 Shooting bullet!");
+    
+    // `addBullet` を正しく使用
+    const bullet = new Bullet(canvas, this.x, this.y, shotX, shotY, this.game);
+    this.game.addBullet(bullet);
   }
 
   public update() {
-    this.bullets.forEach((bullet, index) => {
-      bullet.update();
-      bullet.draw();
-      if (bullet.isOffScreen()) {
-        this.bullets.splice(index, 1);
-      }
-    });
+    // 特に動かす処理はなし
   }
 }
