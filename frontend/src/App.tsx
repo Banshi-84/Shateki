@@ -1,31 +1,22 @@
-import { useEffect, useRef, useState } from "react";
-import { Game } from "./game/Game";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import HomeScreen from "./screens/HomeScreen";
+import GameScreen from "./screens/GameScreen";
+import RecordScreen from "./screens/RecordScreen";
+import RuleScreen from "./screens/RuleScreen";
 import "./App.css";
 
-function App() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [game, setGame] = useState<Game | null>(null);
-
-  useEffect(() => {
-    if (canvasRef.current) {
-      const newGame = new Game(canvasRef.current);
-      setGame(newGame);
-
-      const gameLoop = () => {
-        newGame.update();
-        requestAnimationFrame(gameLoop);
-      };
-
-      gameLoop();
-    }
-  }, []);
-
+const App: React.FC = () => {
   return (
-    <div>
-      <h1>Shateki Game</h1>
-      <canvas ref={canvasRef} width={800} height={600} />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomeScreen />} />
+        <Route path="/game" element={<GameScreen />} />
+        <Route path="/record" element={<RecordScreen />} />
+        <Route path="/rule" element={<RuleScreen />} />
+      </Routes>
+    </Router>
   );
-}
+};
 
 export default App;
