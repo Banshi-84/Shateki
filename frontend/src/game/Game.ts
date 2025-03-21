@@ -18,12 +18,14 @@ export class Game {
   private startTime: number = Date.now();
   private timerPosition = { x: 150, y: 204 };
 
-  private isGameOver: boolean = false; // ⛔ ゲーム終了フラグ
+  private isGameOver: boolean = false; // ✅ ゲーム終了フラグ
+  private onGameEnd: (score: number) => void; // ✅ 終了時に通知するコールバック
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, onGameEnd: (score: number) => void) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     this.player = new Player(this);
+    this.onGameEnd = onGameEnd; // ✅ コールバックをセット
 
     this.background = new Image();
     this.background.src = "/assets/background.jpg";
@@ -33,7 +35,6 @@ export class Game {
     this.setupClickEvent();
   }
 
-  // 🎯 Get canvas reference
   public getCanvas(): HTMLCanvasElement {
     return this.canvas;
   }
@@ -55,7 +56,8 @@ export class Game {
 
   private setupClickEvent() {
     this.canvas.addEventListener("click", (event) => {
-      if (this.isGameOver) return; // ⛔ 終了後は反応しない
+      if (this.isGameOver) return; // ✅ 終了後のクリック無効
+
       const rect = this.canvas.getBoundingClientRect();
       const clickX = event.clientX - rect.left;
       const clickY = event.clientY - rect.top;
@@ -74,6 +76,8 @@ export class Game {
   }
 
   public removePrize(prize: Prize) {
+    if (this.isGameOver) return; // ✅ 終了後は処理しない
+
     const x = prize.getX();
     const y = prize.getY();
     this.score += prize.getScore();
@@ -89,16 +93,13 @@ export class Game {
   }
 
   public addBullet(bullet: Bullet) {
-    this.bullets.push(bullet);
+    if (!this.isGameOver) {
+      this.bullets.push(bullet);
+    }
   }
 
   public getScore(): number {
     return this.score;
-  }
-
-  // ✅ ゲームを強制終了させるメソッド
-  public endGame() {
-    this.isGameOver = true;
   }
 
   private drawScore() {
@@ -122,10 +123,14 @@ export class Game {
     this.ctx.fillStyle = "yellow";
     this.ctx.font = "20px Arial";
     this.ctx.fillText(`Time: ${timeLeft}s`, x, y);
+
+    if (timeLeft <= 0 && !this.isGameOver) {
+      this.endGame();
+    }
   }
 
   public update() {
-    if (this.isGameOver) return; // ✅ 終了したら描画停止
+    if (this.isGameOver) return; // ✅ 終了後は描画しない
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctx.drawImage(this.background, 0, 0, this.canvas.width, this.canvas.height);
@@ -141,5 +146,12 @@ export class Game {
     this.player.draw(this.ctx);
     this.drawScore();
     this.drawTimer();
+  }
+
+  public endGame() {
+    if (!this.isGameOver) {
+      this.isGameOver = true;
+      this.onGameEnd(this.score); // ✅ 記録画面へ通知
+    }
   }
 }
