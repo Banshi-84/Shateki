@@ -29,7 +29,7 @@ export class Bullet {
     this.game = game;
     this.hitTarget = hitTarget;
 
-    // 📐 方向を計算
+    // Calculate Direction
     const dx = targetX - startX;
     const dy = targetY - startY;
     const distance = Math.sqrt(dx * dx + dy * dy);
@@ -37,7 +37,7 @@ export class Bullet {
     this.directionX = dx / distance;
     this.directionY = dy / distance;
 
-    // 🚀 的以外クリックなら、ターゲットを画面外へ拡張
+    // If clicked off-target, target will be extended off-screen.
     if (!hitTarget) {
       const farDistance = Math.max(canvas.width, canvas.height) * 1.5;
       targetX = startX + this.directionX * farDistance;
@@ -48,7 +48,7 @@ export class Bullet {
     this.targetY = targetY;
   }
 
-  // 🔄 Update bullet position
+  // Update bullet position
   public update() {
     if (!this.active) return;
 
@@ -56,7 +56,7 @@ export class Bullet {
     const dy = this.targetY - this.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
-    // 🎯 的に命中したらピタッと止める
+    // When it hits the target, it stops with a snap.
     if (this.hitTarget && distance < this.speed) {
       this.x = this.targetX;
       this.y = this.targetY;
@@ -64,7 +64,7 @@ export class Bullet {
       return;
     }
 
-    // 🚀 的がないなら、画面外に飛ばす
+    // If there is no target, skip off screen.
     this.x += this.directionX * this.speed;
     this.y += this.directionY * this.speed;
 
@@ -73,7 +73,7 @@ export class Bullet {
     }
   }
 
-  // 🔴 弾を描画
+  // Draw the bullet
   public draw() {
     if (!this.active) return;
 
@@ -83,7 +83,7 @@ export class Bullet {
     this.ctx.fill();
   }
 
-  // 💥 的に命中したら Prize を消す
+  // If you hit the target, delete the Prize.
   private hitPrize() {
     this.active = false;
     const targetPrize = this.game.getPrizeAt(this.x, this.y);
@@ -92,7 +92,7 @@ export class Bullet {
     }
   }
 
-  // 🛑 画面外に出たかチェック
+  // Check if it went off screen.
   public isOffScreen(): boolean {
     return (
       this.x < 0 || this.x > this.canvas.width ||
@@ -100,7 +100,7 @@ export class Bullet {
     );
   }
 
-  // 🎯 まだ画面内に残っているか
+  // Is target still in the screen?
   public isAlive(): boolean {
     return this.active;
   }

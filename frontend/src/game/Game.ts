@@ -18,14 +18,14 @@ export class Game {
   private startTime: number = Date.now();
   private timerPosition = { x: 150, y: 204 };
 
-  private isGameOver: boolean = false; // ✅ ゲーム終了フラグ
-  private onGameEnd: (score: number) => void; // ✅ 終了時に通知するコールバック
+  private isGameOver: boolean = false;
+  private onGameEnd: (score: number) => void;
 
   constructor(canvas: HTMLCanvasElement, onGameEnd: (score: number) => void) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
     this.player = new Player(this);
-    this.onGameEnd = onGameEnd; // ✅ コールバックをセット
+    this.onGameEnd = onGameEnd;
 
     this.background = new Image();
     this.background.src = "/assets/background.jpg";
@@ -56,7 +56,7 @@ export class Game {
 
   private setupClickEvent() {
     this.canvas.addEventListener("click", (event) => {
-      if (this.isGameOver) return; // ✅ 終了後のクリック無効
+      if (this.isGameOver) return; //
 
       const rect = this.canvas.getBoundingClientRect();
       const clickX = event.clientX - rect.left;
@@ -76,7 +76,7 @@ export class Game {
   }
 
   public removePrize(prize: Prize) {
-    if (this.isGameOver) return; // ✅ 終了後は処理しない
+    if (this.isGameOver) return; //
 
     const x = prize.getX();
     const y = prize.getY();
@@ -130,7 +130,7 @@ export class Game {
   }
 
   public update() {
-    if (this.isGameOver) return; // ✅ 終了後は描画しない
+    if (this.isGameOver) return;
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctx.drawImage(this.background, 0, 0, this.canvas.width, this.canvas.height);
@@ -151,7 +151,7 @@ export class Game {
   public endGame() {
     if (!this.isGameOver) {
       this.isGameOver = true;
-      this.onGameEnd(this.score); // ✅ 記録画面へ通知
+      this.onGameEnd(this.score);
     }
   }
 }

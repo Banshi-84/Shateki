@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-// 📖 ルール画面
 const RuleScreen: React.FC = () => {
   const navigate = useNavigate();
 
