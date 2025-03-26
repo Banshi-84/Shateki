@@ -1,30 +1,43 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Game } from "../game/Game";
 import { useNavigate } from "react-router-dom";
+import { Typewriter } from "react-simple-typewriter";
 
-// Game screen
 const GameScreen: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [game, setGame] = useState<Game | null>(null);
-  const [timeLeft, setTimeLeft] = useState(60); // left time
-  const navigate = useNavigate();
+  const [timeLeft, setTimeLeft] = useState(60); 
+  const [username, setUsername] = useState(""); 
+  const [isUsernameSet, setIsUsernameSet] = useState(false);
+  const navigate = useNavigate(); 
+  const [error, setError] = useState("");
+
+  const handleUsernameSubmit = () => {
+    if (username.trim()) {
+      setIsUsernameSet(true);
+      setError("")
+    }
+    else{
+      setError("Enter a valid username")
+    }
+  };
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
     let gameTimeout: NodeJS.Timeout;
 
-    if (canvasRef.current && !game) {
+    if (canvasRef.current && !game && isUsernameSet) {
       const newGame = new Game(canvasRef.current, handleGameEnd);
       setGame(newGame);
 
-      // game loop
+  
       const loop = () => {
         newGame.update();
         requestAnimationFrame(loop);
       };
       loop();
 
-      // count down
+     
       timer = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
@@ -35,7 +48,6 @@ const GameScreen: React.FC = () => {
         });
       }, 1000);
 
-      // complete game
       gameTimeout = setTimeout(() => {
         newGame.endGame();
       }, 60000);
@@ -44,16 +56,16 @@ const GameScreen: React.FC = () => {
     return () => {
       clearInterval(timer);
       clearTimeout(gameTimeout);
-    }; // cleanup
-  }, [game]);
+    }; 
+  }, [game, isUsernameSet]);
 
   const handleGameEnd = (score: number) => {
-    saveScore(score); // myscore
-    updateGlobalRanking(score); // ranking foor world
-    navigate("/record", { state: { score } }); // move screen
+    saveScore(score); 
+    updateGlobalRanking(username, score); 
+    navigate("/record", { state: { score } }); 
   };
 
-  // my screen latest 20
+ 
   const saveScore = (score: number) => {
     let scores = JSON.parse(localStorage.getItem("myScores") || "[]");
 
@@ -62,29 +74,56 @@ const GameScreen: React.FC = () => {
     }
 
     scores.unshift(score);
-    scores = scores.slice(0, 20); // latest 20
-
+    scores = scores.slice(0, 20); 
     localStorage.setItem("myScores", JSON.stringify(scores));
   };
 
-  // world ranking
-  const updateGlobalRanking = (score: number) => {
-    let globalScores = JSON.parse(localStorage.getItem("globalScores") || "[]");
+  const updateGlobalRanking = (username: string, score: number) => {
 
-    if (!Array.isArray(globalScores)) {
-      globalScores = [];
-    }
-
-    globalScores.push(score);
-    globalScores.sort((a: number, b: number) => b - a);
-    globalScores = globalScores.slice(0, 20); // top20
-
-    localStorage.setItem("globalScores", JSON.stringify(globalScores));
+    fetch("http://localhost:5000/api/add-score", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, score }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Global ranking updated:", data);
+      })
+      .catch((err) => {
+        console.error("Error updating global ranking:", err);
+      });
   };
+
+  if (!isUsernameSet) {
+    return (
+      
+      <div style={{ textAlign: "center" }}>
+        <h2 style={{fontSize:40}}><Typewriter words={["Enter Your Username"]} typeSpeed={100} /></h2>
+        <input
+          type="text"
+          placeholder="Enter a Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          style={{ padding: "10px", fontSize: "16px" }}
+        />
+        <br />
+        <button onClick={handleUsernameSubmit} style={{ marginTop: "20px" }}>
+          Start Game
+        </button>
+        {error && <p style={{ color: "red" }}>{error}</p>} 
+      </div>
+    );
+  }
 
   return (
     <div style={{ textAlign: "center" }}>
-      <h2>Shateki Game</h2>
+      <h1 style={{ color: "white", textShadow: "2px 2px 4px rgba(0,0,0,0.7)"}}>
+            <Typewriter
+                words={["Shateki Game"]}
+                typeSpeed={100}
+                cursor
+              />
+            </h1>
       <p>⏱ Time Left: {timeLeft}s</p>
       <canvas
         ref={canvasRef}
