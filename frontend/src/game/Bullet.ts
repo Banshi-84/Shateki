@@ -1,6 +1,6 @@
 import { Game } from "./Game";
 
-// 🎯 Bullet class: Manages bullet movement
+//  Bullet class: Manages bullet movement
 export class Bullet {
   private x: number;
   private y: number;
