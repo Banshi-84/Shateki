@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Game } from "../game/Game";
 import { useNavigate } from "react-router-dom";
+import { ref, push } from "firebase/database";
+import { database } from "../firebase";
 
 // Game screen
 const GameScreen: React.FC = () => {
@@ -49,7 +51,7 @@ const GameScreen: React.FC = () => {
 
   const handleGameEnd = (score: number) => {
     saveScore(score); // myscore
-    updateGlobalRanking(score); // ranking foor world
+    updateGlobalRanking(score); // ranking for world
     navigate("/record", { state: { score } }); // move screen
   };
 
@@ -69,17 +71,13 @@ const GameScreen: React.FC = () => {
 
   // world ranking
   const updateGlobalRanking = (score: number) => {
-    let globalScores = JSON.parse(localStorage.getItem("globalScores") || "[]");
-
-    if (!Array.isArray(globalScores)) {
-      globalScores = [];
-    }
-
-    globalScores.push(score);
-    globalScores.sort((a: number, b: number) => b - a);
-    globalScores = globalScores.slice(0, 20); // top20
-
-    localStorage.setItem("globalScores", JSON.stringify(globalScores));
+    const username = localStorage.getItem("username") || "Anonymous";
+    const scoresRef = ref(database, 'scores');
+    push(scoresRef, {
+      username: username,
+      score: score,
+      timestamp: Date.now()
+    });
   };
 
   return (

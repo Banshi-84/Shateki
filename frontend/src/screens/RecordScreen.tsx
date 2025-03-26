@@ -1,54 +1,73 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { collection, query, orderBy, limit, onSnapshot } from "firebase/firestore";
+import { db } from "../firebase";
 
+interface UserData {
+  username: string;
+  highScore: number;
+}
 
 const RecordScreen: React.FC = () => {
   const navigate = useNavigate();
+  const [globalScores, setGlobalScores] = useState<UserData[]>([]);
 
-  const myScores: number[] = JSON.parse(localStorage.getItem("myScores") || "[]");
+  useEffect(() => {
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, orderBy("highScore", "desc"), limit(20));
 
-  const topMyScores = [...myScores].sort((a, b) => b - a).slice(0, 20);
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const scores: UserData[] = [];
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        scores.push({
+          username: doc.id,
+          highScore: data.highScore
+        });
+      });
+      setGlobalScores(scores);
+    });
 
-  const otherScores = Array.from({ length: 20 }, () => Math.floor(Math.random() * 201)).sort((a, b) => b - a);
+    return () => unsubscribe();
+  }, []);
 
   return (
     <div style={{ textAlign: "center", marginTop: "40px" }}>
-      <h2>📋 Score Record</h2>
+      <h2>📋 Global Leaderboard</h2>
 
-      <div style={{ display: "flex", justifyContent: "space-around", marginTop: "30px" }}>
-        {/* Recent Scores */}
+      <div style={{ maxWidth: "600px", margin: "30px auto" }}>
         <div>
-          <h3>🕓 Recent 20</h3>
-          <ul>
-            {myScores.map((score, index) => (
-              <li key={index}>#{index + 1} - {score} pts</li>
-            ))}
-          </ul>
-        </div>
-
-        {/* My Top 20 */}
-        <div>
-          <h3>🏆 My Top 20</h3>
-          <ul>
-            {topMyScores.map((score, index) => (
-              <li key={index}>#{index + 1} - {score} pts</li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Other Players */}
-        <div>
-          <h3>🌐 Global Top 20</h3>
-          <ul>
-            {otherScores.map((score, index) => (
-              <li key={index}>#{index + 1} - {score} pts</li>
+          <h3>🌐 Top 20 Players</h3>
+          <ul style={{ listStyle: "none", padding: 0 }}>
+            {globalScores.map((userData, index) => (
+              <li key={index} style={{
+                padding: "10px",
+                margin: "5px 0",
+                backgroundColor: index === 0 ? "#ffd700" : index === 1 ? "#c0c0c0" : index === 2 ? "#cd7f32" : "#f5f5f5",
+                borderRadius: "8px",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+              }}>
+                #{index + 1} - {userData.username} - {userData.highScore} pts
+              </li>
             ))}
           </ul>
         </div>
       </div>
 
-      <br />
-      <button onClick={() => navigate("/")}>← Back to Home</button>
+      <button 
+        onClick={() => navigate("/")} 
+        style={{ 
+          padding: "8px 16px", 
+          borderRadius: "4px", 
+          cursor: "pointer",
+          backgroundColor: "#4a90e2",
+          color: "white",
+          border: "none",
+          fontSize: "16px"
+        }}
+      >
+        ← Back to Home
+      </button>
     </div>
   );
 };
