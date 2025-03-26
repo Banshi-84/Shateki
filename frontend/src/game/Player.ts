@@ -13,14 +13,14 @@ export class Player {
     this.y = game.getCanvas().height - 50;
   }
 
-  // 🔫 弾を発射する処理
+  // Bullet
   public shoot(targetX: number, targetY: number, hitTarget: boolean) {
     console.log("🔫 Shooting at", targetX, targetY, hitTarget);
     const bullet = new Bullet(this.game.getCanvas(), this.x, this.y, targetX, targetY, this.game, hitTarget);
     this.game.addBullet(bullet);
   }
 
-  // 🔵 出現位置（青い弾の位置）の描画
+  // position for bule 
   public draw(ctx: CanvasRenderingContext2D) {
     ctx.fillStyle = "blue";
     ctx.beginPath();

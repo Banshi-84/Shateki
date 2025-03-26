@@ -2,11 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { Game } from "../game/Game";
 import { useNavigate } from "react-router-dom";
 
-// 🎮 ゲーム画面
+// Game screen
 const GameScreen: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [game, setGame] = useState<Game | null>(null);
-  const [timeLeft, setTimeLeft] = useState(60); // ⏱ 残り時間（秒）
+  const [timeLeft, setTimeLeft] = useState(60); // left time
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,14 +17,14 @@ const GameScreen: React.FC = () => {
       const newGame = new Game(canvasRef.current, handleGameEnd);
       setGame(newGame);
 
-      // 🎮 ゲームループ
+      // game loop
       const loop = () => {
         newGame.update();
         requestAnimationFrame(loop);
       };
       loop();
 
-      // ⏱ 1秒ごとにカウントダウン
+      // count down
       timer = setInterval(() => {
         setTimeLeft((prev) => {
           if (prev <= 1) {
@@ -35,7 +35,7 @@ const GameScreen: React.FC = () => {
         });
       }, 1000);
 
-      // ⏳ 60秒後にゲームを強制終了
+      // complete game
       gameTimeout = setTimeout(() => {
         newGame.endGame();
       }, 60000);
@@ -44,17 +44,16 @@ const GameScreen: React.FC = () => {
     return () => {
       clearInterval(timer);
       clearTimeout(gameTimeout);
-    }; // クリーンアップ
+    }; // cleanup
   }, [game]);
 
-  // ✅ ゲーム終了時の処理
   const handleGameEnd = (score: number) => {
-    saveScore(score); // 自分のスコアを保存
-    updateGlobalRanking(score); // 世界ランキング更新
-    navigate("/record", { state: { score } }); // 記録画面へ遷移
+    saveScore(score); // myscore
+    updateGlobalRanking(score); // ranking foor world
+    navigate("/record", { state: { score } }); // move screen
   };
 
-  // 💾 自分のスコアを保存 (直近20件)
+  // my screen latest 20
   const saveScore = (score: number) => {
     let scores = JSON.parse(localStorage.getItem("myScores") || "[]");
 
@@ -63,12 +62,12 @@ const GameScreen: React.FC = () => {
     }
 
     scores.unshift(score);
-    scores = scores.slice(0, 20); // 直近20件のみ保持
+    scores = scores.slice(0, 20); // latest 20
 
     localStorage.setItem("myScores", JSON.stringify(scores));
   };
 
-  // 🌍 世界ランキングを更新 (トップ20)
+  // world ranking
   const updateGlobalRanking = (score: number) => {
     let globalScores = JSON.parse(localStorage.getItem("globalScores") || "[]");
 
@@ -77,10 +76,10 @@ const GameScreen: React.FC = () => {
     }
 
     globalScores.push(score);
-    globalScores.sort((a: number, b: number) => b - a); // 高得点順にソート
-    globalScores = globalScores.slice(0, 20); // トップ20のみ保持
+    globalScores.sort((a: number, b: number) => b - a);
+    globalScores = globalScores.slice(0, 20); // top20
 
-    localStorage.setItem("globalScores", JSON.stringify(globalScores)); // 保存
+    localStorage.setItem("globalScores", JSON.stringify(globalScores));
   };
 
   return (

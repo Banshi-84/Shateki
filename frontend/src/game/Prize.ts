@@ -1,4 +1,4 @@
-// 🎯 Prize class: Represents a target
+// Prize class: Represents a target
 export class Prize {
     private x: number;
     private y: number;
@@ -28,12 +28,12 @@ export class Prize {
       this.image.src = `/assets/${selected.image}`;
     }
   
-    // 🖼 Draw the prize image
+    // Draw the prize image
     public draw(ctx: CanvasRenderingContext2D) {
       ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
   
-    // 🎯 Check if a point hits this prize
+    // Check if a point hits this prize
     public checkHit(px: number, py: number): boolean {
       return (
         px >= this.x &&

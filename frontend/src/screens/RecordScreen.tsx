@@ -1,17 +1,14 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-// 📋 記録画面
+
 const RecordScreen: React.FC = () => {
   const navigate = useNavigate();
 
-  // 💾 自分のスコア取得
   const myScores: number[] = JSON.parse(localStorage.getItem("myScores") || "[]");
 
-  // 🔝 トップ20にソート
   const topMyScores = [...myScores].sort((a, b) => b - a).slice(0, 20);
 
-  // 🌍 他プレイヤーのランキング（ダミー）
   const otherScores = Array.from({ length: 20 }, () => Math.floor(Math.random() * 201)).sort((a, b) => b - a);
 
   return (

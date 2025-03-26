@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-// 🏠 ホーム画面（メニュー画面）
 const HomeScreen: React.FC = () => {
   const navigate = useNavigate();
 
