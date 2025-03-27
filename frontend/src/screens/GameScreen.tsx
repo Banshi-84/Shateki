@@ -153,6 +153,7 @@ const GameScreen: React.FC = () => {
       />
       <br />
       <button onClick={() => navigate("/")}>← Back to Home</button>
+      {isSubmitting && <p>Submitting score...</p>}
     </div>
   );
 };
