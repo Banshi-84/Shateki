@@ -8,8 +8,10 @@ const PORT = 3000;
 
 
 app.use(express.json());
-app.use(cors({origin: process.env.FRONTEND_URL,
-  credentials: true}));
+app.use(cors({origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']}));
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ Connected to MongoDB"))
@@ -23,9 +25,7 @@ const scoreSchema = new mongoose.Schema({
 
 const Score = mongoose.model("Score", scoreSchema);
 
-app.get("/", (req, res) => {
-  res.send("Backend is running...");
-});
+
 app.get("/api/global-top20", async (req, res) => {
   try {
     const topScores = await Score.find().sort({ score: -1 }).limit(20);
@@ -66,4 +66,7 @@ app.post("/api/add-score", async (req, res) => {
   }
 });
 
+app.get("/", (req, res) => {
+  res.send("Backend is running...");
+});
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
