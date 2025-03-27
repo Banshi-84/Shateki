@@ -1,1 +1,57 @@
 
+Shateki - Knockdown Game
+Shateki is a fun, interactive shooting game where players knock items off a shelf to score points. The game features a countdown timer and a leaderboard to track the best scores. Players can submit their scores to the global leaderboard and even share their achievements on Reddit.
+
+Features
+Shoot items off the shelf to earn points.
+
+60-second timer to finish the game.
+
+Leaderboard to track global scores.
+
+Reddit integration to share scores.
+
+Username input and validation.
+
+Tech Stack
+Frontend: React, React Router, Vite, Framer Motion
+
+Backend: Express, MongoDB
+
+Deployment: Vercel
+
+APIs: Custom API for leaderboard and score submission
+
+CORS: For handling cross-origin requests
+
+Installation
+Clone the repository:
+
+bash
+Copy
+Edit
+git clone https://github.com/Banshi-84/Shateki.git
+Install dependencies:
+
+bash
+Copy
+Edit
+cd Shateki
+npm install
+Run the app:
+
+bash
+Copy
+Edit
+npm run dev
+Contributing
+We welcome contributions! To contribute:
+
+Fork the repository.
+
+Create a new branch.
+
+Submit a pull request.
+
+License
+MIT License
