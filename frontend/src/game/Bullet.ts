@@ -12,6 +12,8 @@ export class Bullet {
   private game: Game;
   private active: boolean = true;
   private hitTarget: boolean;
+  private targetX: number;
+  private targetY: number;
 
   constructor(
     canvas: HTMLCanvasElement,

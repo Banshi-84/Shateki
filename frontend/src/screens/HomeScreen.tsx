@@ -42,7 +42,6 @@ const HomeScreen: React.FC = () => {
           border: "none",
           borderRadius: "8px",
           cursor: "pointer",
-          margin: "10px" 
         }}
         animate={{
           scale: [1, 1.2, 1], 
