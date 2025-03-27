@@ -10,7 +10,7 @@ const RecordScreen: React.FC = () => {
   const topMyScores = [...myScores].sort((a, b) => b - a).slice(0, 20);
 
   useEffect(() => {
-    fetch("http://localhost:3000/api/global-top20")
+    fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/global-top20`)
       .then((res) => res.json())
       .then((data) => {
         const uniqueScores = new Map<string, number>();

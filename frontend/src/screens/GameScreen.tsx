@@ -80,7 +80,7 @@ const GameScreen: React.FC = () => {
 
   const updateGlobalRanking = (username: string, score: number) => {
 
-    fetch("http://localhost:3000/api/add-score", {
+    fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/add-score`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, score }),
