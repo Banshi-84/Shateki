@@ -4,11 +4,12 @@ const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
-const PORT = 5000;
+const PORT = 3000;
 
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({origin: process.env.FRONTEND_URL,
+  credentials: true}));
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ Connected to MongoDB"))
@@ -22,7 +23,9 @@ const scoreSchema = new mongoose.Schema({
 
 const Score = mongoose.model("Score", scoreSchema);
 
-
+app.get("/", (req, res) => {
+  res.send("Backend is running...");
+});
 app.get("/api/global-top20", async (req, res) => {
   try {
     const topScores = await Score.find().sort({ score: -1 }).limit(20);
