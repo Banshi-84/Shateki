@@ -3,6 +3,13 @@ import { Game } from "../game/Game";
 import { useNavigate } from "react-router-dom";
 import { Typewriter } from "react-simple-typewriter";
 
+
+type ScoreResponse = {
+  success: boolean;
+  message?: string;
+  error?: string;
+};
+
 const GameScreen: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [game, setGame] = useState<Game | null>(null);
@@ -11,6 +18,8 @@ const GameScreen: React.FC = () => {
   const [isUsernameSet, setIsUsernameSet] = useState(false);
   const navigate = useNavigate(); 
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
 
   const handleUsernameSubmit = () => {
     if (username.trim()) {
@@ -78,20 +87,31 @@ const GameScreen: React.FC = () => {
     localStorage.setItem("myScores", JSON.stringify(scores));
   };
 
-  const updateGlobalRanking = (username: string, score: number) => {
-
-    fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/add-score`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, score }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Global ranking updated:", data);
-      })
-      .catch((err) => {
-        console.error("Error updating global ranking:", err);
+  const updateGlobalRanking = async (username: string, score: number) => {
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/api/add-score`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          // Add any required headers for your backend
+        },
+        body: JSON.stringify({ username, score }),
+        credentials: "include", // Only if you need to send cookies
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data: ScoreResponse = await response.json();
+      console.log("Global ranking updated:", data);
+    } catch (err) {
+      console.error("Error updating global ranking:", err);
+      // Optionally show error to user or retry logic
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isUsernameSet) {
